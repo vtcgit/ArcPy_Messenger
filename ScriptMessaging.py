@@ -6,8 +6,9 @@ import sys
 import os
 import getpass
 import traceback
-import StringIO
 from inspect import currentframe, getframeinfo
+
+import StringIO
 
 
 class Messenger:
