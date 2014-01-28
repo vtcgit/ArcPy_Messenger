@@ -7,10 +7,8 @@ import sys
 import os
 import getpass
 import traceback
-from inspect import currentframe, getframeinfo
-
 import StringIO
-
+from inspect import currentframe, getframeinfo
 
 class Messenger:
     def __init__(self, username, password):
