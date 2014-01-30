@@ -11,7 +11,7 @@ import StringIO
 from inspect import currentframe, getframeinfo
 
 class Messenger:
-    def __init__(self, username, password):
+    def __init__(self, username, password, application_name):
         #set up email to/from information
         """
         This constructor sets the information needed to send an email and the computer information (neither of which
@@ -26,6 +26,7 @@ class Messenger:
         self.to = self.fromaddr
         self.uname = self.fromaddr
         self.pwd = password
+        self.application_name = application_name
 
         #Store the computer and user name
         self.computername = os.environ['COMPUTERNAME']
@@ -78,7 +79,7 @@ class Messenger:
             filename = filepath[len(filepath) - 1]
 
         msg = "\r\n".join([
-            "Subject: Python Script Message",
+            "Subject: [" + self.application_name + "] Python Script Message",
             message,
             "File: " + filename,
             "Line: " + str(lineno),
