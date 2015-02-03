@@ -3,6 +3,9 @@ __date_created__ = '1/17/14'
 
 
 import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.message import Message
 import sys
 import os
 import getpass
@@ -11,7 +14,7 @@ import StringIO
 from inspect import currentframe, getframeinfo
 
 class Messenger:
-    def __init__(self, username, password, application_name):
+    def __init__(self, username, password, application_name, recipients=None):
         #set up email to/from information
         """
         This constructor sets the information needed to send an email and the computer information (neither of which
@@ -21,6 +24,7 @@ class Messenger:
         NOTE: overriding must be done in each thread of a threaded program.
         @param username: The username of the gmail account.
         @param password: The password of the gmail account.
+        @param recipients: String list of email addresses to send to. Will send a copy to self.
         """
         self.fromaddr = username
         self.to = self.fromaddr
@@ -62,7 +66,7 @@ class Messenger:
         @param evalue: The value of the exception.
         @param etb: The exception traceback object.
         @param stackframe: The stackframe from where you should get line number and file names.
-        @return: A string message, intended to go in the body of an email.
+        @return: A MIMEMultipart, with a plain text body, ready for attachements.
         """
         #Collect exception information
         if exception:
@@ -78,8 +82,7 @@ class Messenger:
             filepath = getframeinfo(stackframe).filename.split('/')
             filename = filepath[len(filepath) - 1]
 
-        msg = "\r\n".join([
-            "Subject: [" + self.application_name + "] Python Script Message",
+        body_text = "\r\n".join([
             message,
             "File: " + filename,
             "Line: " + str(lineno),
@@ -87,6 +90,14 @@ class Messenger:
             "Computer User: " + self.computeruser,
             "Error Information: " + output.getvalue()
             ])
+
+        msg = MIMEMultipart()
+        msg['Subject'] = "[" + self.application_name + "] Python Script Message"
+
+        body = MIMEMultipart('alternative')
+        body_content = MIMEText(body_text, 'plain')
+        body.attach(body_content)
+        msg.attach(body)
         return msg
 
     def __send_email(self, msg):
@@ -98,7 +109,8 @@ class Messenger:
         server.ehlo()
         server.starttls()
         server.login(self.uname,self.pwd)
-        server.sendmail(self.fromaddr, self.to, msg)
+        composed = msg.as_string()
+        server.sendmail(self.fromaddr, self.to, composed)
         server.quit()
 
     def email_error(self, message, exception):
@@ -110,10 +122,20 @@ class Messenger:
         msg = self.__build_message(message, exception=exception, stackframe=currentframe().f_back)
         self.__send_email(msg)
 
-    def email_message(self, message):
+    def email_message(self, message, attachments=None):
         """
 
         @param message: The message to be put in the body of the email.
+        @param attachments: A list of strings; the filepaths to all email attachments.
         """
         msg = self.__build_message(message, stackframe=currentframe().f_back)
+
+        for attachment_path in attachments:
+            fp = open(attachment_path)
+            attachment = MIMEText(fp.read())
+            fp.close()
+            head, tail = os.path.split(attachment_path)
+            attachment.add_header('Content-Disposition', 'attachment', filename=tail)
+            msg.attach(attachment)
+
         self.__send_email(msg)
