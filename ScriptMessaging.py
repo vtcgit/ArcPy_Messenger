@@ -113,13 +113,30 @@ class Messenger:
         server.sendmail(self.fromaddr, self.to, composed)
         server.quit()
 
-    def email_error(self, message, exception):
+    @staticmethod
+    def __add_attachments(msg, attachments):
+        """
+
+        @param message: The MIMEMultipart message.
+        @param attachments: A list of strings; the filepaths to all email attachments.
+        """
+        for attachment_path in attachments:
+            fp = open(attachment_path)
+            attachment = MIMEText(fp.read())
+            fp.close()
+            head, tail = os.path.split(attachment_path)
+            attachment.add_header('Content-Disposition', 'attachment', filename=tail)
+            msg.attach(attachment)
+
+    def email_error(self, message, exception, attachments=None):
         """
 
         @param message: The message to be put in the body of the email.
         @param exception: The exception object (if none, use email_message).
         """
         msg = self.__build_message(message, exception=exception, stackframe=currentframe().f_back)
+        if(attachments):
+            self.__add_attachments(msg, attachments)
         self.__send_email(msg)
 
     def email_message(self, message, attachments=None):
@@ -129,13 +146,6 @@ class Messenger:
         @param attachments: A list of strings; the filepaths to all email attachments.
         """
         msg = self.__build_message(message, stackframe=currentframe().f_back)
-
-        for attachment_path in attachments:
-            fp = open(attachment_path)
-            attachment = MIMEText(fp.read())
-            fp.close()
-            head, tail = os.path.split(attachment_path)
-            attachment.add_header('Content-Disposition', 'attachment', filename=tail)
-            msg.attach(attachment)
-
+        if(attachments):
+            self.__add_attachments(msg, attachments)
         self.__send_email(msg)

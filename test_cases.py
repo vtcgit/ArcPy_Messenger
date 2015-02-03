@@ -9,11 +9,17 @@ messenger = ScriptMessaging.Messenger(__credentials.username, __credentials.pass
 # Test Handled Exception
 m = []
 
-messenger.email_message("Sample message", [os.path.join(os.curdir, 'README.md')])
+messenger.email_message("Sample message, no attachments")
+messenger.email_message("Sample message, with attachments", [os.path.join(os.curdir, 'README.md')])
 
 try:
     m[0] = 1
 except (Exception) as e:
-    messenger.email_error("A handled exception occurred", e)
+    messenger.email_error("Sample handled error, no attachments", e)
+
+try:
+    m[0] = 1
+except (Exception) as e:
+    messenger.email_error("Sample handled error, with attachments", e, [os.path.join(os.curdir, 'README.md')])
 
 print("Test complete")
