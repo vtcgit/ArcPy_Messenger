@@ -4,7 +4,7 @@ __date_created__ = '1/30/14'
 import __credentials, ScriptMessaging
 import os
 
-messenger = ScriptMessaging.Messenger(__credentials.username, __credentials.password, "Test Case")
+messenger = ScriptMessaging.Messenger(__credentials.username, __credentials.password, "Test Case", __credentials.recipients)
 
 # Test Handled Exception
 m = []

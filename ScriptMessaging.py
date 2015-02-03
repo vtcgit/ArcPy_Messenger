@@ -14,7 +14,7 @@ import StringIO
 from inspect import currentframe, getframeinfo
 
 class Messenger:
-    def __init__(self, username, password, application_name, recipients=None):
+    def __init__(self, username, password, application_name, recipients=[]):
         #set up email to/from information
         """
         This constructor sets the information needed to send an email and the computer information (neither of which
@@ -27,7 +27,8 @@ class Messenger:
         @param recipients: String list of email addresses to send to. Will send a copy to self.
         """
         self.fromaddr = username
-        self.to = self.fromaddr
+        recipients.append(self.fromaddr)
+        self.to = recipients
         self.uname = self.fromaddr
         self.pwd = password
         self.application_name = application_name
