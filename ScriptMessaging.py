@@ -5,6 +5,11 @@ __date_created__ = '1/17/14'
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.mime.audio import MIMEAudio
+from email.mime.base import MIMEBase
+from email.mime.image import MIMEImage
+from email import encoders
+import mimetypes
 from email.message import Message
 import sys
 import os
@@ -122,9 +127,33 @@ class Messenger:
         @param attachments: A list of strings; the filepaths to all email attachments.
         """
         for attachment_path in attachments:
-            fp = open(attachment_path)
-            attachment = MIMEText(fp.read())
-            fp.close()
+            ctype, encoding = mimetypes.guess_type(attachment_path)
+            if ctype is None or encoding is not None:
+                # No guess could be made, or the file is encoded (compressed), so
+                # use a generic bag-of-bits type.
+                ctype = 'application/octet-stream'
+            maintype, subtype = ctype.split('/', 1)
+            if maintype == 'text':
+                fp = open(attachment_path)
+                # Note: we should handle calculating the charset
+                attachment = MIMEText(fp.read(), _subtype=subtype)
+                fp.close()
+            elif maintype == 'image':
+                fp = open(attachment_path, 'rb')
+                attachment = MIMEImage(fp.read(), _subtype=subtype)
+                fp.close()
+            elif maintype == 'audio':
+                fp = open(attachment_path, 'rb')
+                attachment = MIMEAudio(fp.read(), _subtype=subtype)
+                fp.close()
+            else:
+                fp = open(attachment_path, 'rb')
+                attachment = MIMEBase(maintype, subtype)
+                attachment.set_payload(fp.read())
+                fp.close()
+                # Encode the payload using Base64
+                encoders.encode_base64(attachment)
+
             head, tail = os.path.split(attachment_path)
             attachment.add_header('Content-Disposition', 'attachment', filename=tail)
             msg.attach(attachment)
