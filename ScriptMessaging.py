@@ -63,7 +63,7 @@ class Messenger:
         sys.excepthook = myexcepthook
 
 
-    def __build_message(self, message, exception=None, etype=None, evalue=None, etb=None, stackframe=None):
+    def __build_message(self, message, exception=None, etype=None, evalue=None, etb=None, stackframe=None, include_traceback=True):
         """
 
         @param message: A human friendly message that you want emailed.
@@ -88,14 +88,16 @@ class Messenger:
             filepath = getframeinfo(stackframe).filename.split('/')
             filename = filepath[len(filepath) - 1]
 
-        body_text = "\r\n".join([
-            message,
-            "File: " + filename,
-            "Line: " + str(lineno),
-            "Computer Name: " + self.computername,
-            "Computer User: " + self.computeruser,
-            "Error Information: " + output.getvalue()
-            ])
+        body_text = message + "\r\n"
+
+        if include_traceback:
+            body_text += "\r\n".join([
+                "File: " + filename,
+                "Line: " + str(lineno),
+                "Computer Name: " + self.computername,
+                "Computer User: " + self.computeruser,
+                "Error Information: " + output.getvalue()
+                ])
 
         msg = MIMEMultipart()
         msg['Subject'] = "[" + self.application_name + "] Python Script Message"
@@ -175,7 +177,7 @@ class Messenger:
         @param message: The message to be put in the body of the email.
         @param attachments: A list of strings; the filepaths to all email attachments.
         """
-        msg = self.__build_message(message, stackframe=currentframe().f_back)
+        msg = self.__build_message(message, stackframe=currentframe().f_back, include_traceback=False)
         if(attachments):
             self.__add_attachments(msg, attachments)
         self.__send_email(msg)
