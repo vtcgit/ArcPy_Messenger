@@ -63,7 +63,7 @@ class Messenger:
         sys.excepthook = myexcepthook
 
 
-    def __build_message(self, message, exception=None, etype=None, evalue=None, etb=None, stackframe=None, include_traceback=True):
+    def __build_message(self, message, subject="Python Script Message", exception=None, etype=None, evalue=None, etb=None, stackframe=None, include_traceback=True):
         """
 
         @param message: A human friendly message that you want emailed.
@@ -100,7 +100,7 @@ class Messenger:
                 ])
 
         msg = MIMEMultipart()
-        msg['Subject'] = "[" + self.application_name + "] Python Script Message"
+        msg['Subject'] = "[" + self.application_name + "] "+subject
 
         body = MIMEMultipart('alternative')
         body_content = MIMEText(body_text, 'plain')
@@ -171,13 +171,13 @@ class Messenger:
             self.__add_attachments(msg, attachments)
         self.__send_email(msg)
 
-    def email_message(self, message, attachments=None):
+    def email_message(self, message, subject, attachments=None):
         """
 
         @param message: The message to be put in the body of the email.
         @param attachments: A list of strings; the filepaths to all email attachments.
         """
-        msg = self.__build_message(message, stackframe=currentframe().f_back, include_traceback=False)
+        msg = self.__build_message(message, subject, stackframe=currentframe().f_back, include_traceback=False,)
         if(attachments):
             self.__add_attachments(msg, attachments)
         self.__send_email(msg)
