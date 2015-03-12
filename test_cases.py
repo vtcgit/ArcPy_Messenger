@@ -10,7 +10,8 @@ messenger = ScriptMessaging.Messenger(__credentials.username, __credentials.pass
 m = []
 
 # messenger.email_message("Sample message, no attachments")
-messenger.email_message("Please find attached the vineyards site report you requested on 03/11/2015 from the Grape & Wine Quality, Eastern U.S. Initiative website.\n\nIf you have any issues with the report, please send an email to cgitsupport@listserv.vt.edu.\n\nSincerely,\nCGIT", "Vineyards Site Report", [os.path.join(os.curdir, 'SamplePDF.pdf')])
+messenger.email_message("Please find attached the vineyards site report you requested on 03/11/2015 from the Grape & Wine Quality, Eastern U.S. Initiative website.\n\nIf you have any issues with the report, please send an email to cgitsupport@listserv.vt.edu.\n\nSincerely,\nCGIT", "This is not Spam!", [os.path.join(os.curdir, 'SamplePDF.pdf')])
+
 
 # try:
 #     m[0] = 1

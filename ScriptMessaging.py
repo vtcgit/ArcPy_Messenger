@@ -99,8 +99,11 @@ class Messenger:
                 "Error Information: " + output.getvalue()
                 ])
 
+        COMMASPACE = ', '
         msg = MIMEMultipart()
         msg['Subject'] = "[" + self.application_name + "] "+subject
+        msg['To'] = COMMASPACE.join(self.to)
+        msg['From'] = self.fromaddr
 
         body = MIMEMultipart('alternative')
         body_content = MIMEText(body_text, 'plain')
